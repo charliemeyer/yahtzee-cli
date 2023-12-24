@@ -15,7 +15,7 @@ quiet_mode = False
 def log(*messages):
     if quiet_mode:
         return
-    print(messages)
+    print(*messages)
 
 def roll(keep_numbers):
     new_roll = []

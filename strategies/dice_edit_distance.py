@@ -22,21 +22,3 @@ def dice_edit_distance(roll1, roll2):
         prob *= (1/6) ** change
     prob *= math.factorial(len(changes))
     return prob
-
-def test_pair(d1, d2):
-    print(d1, d2, dice_edit_distance(d1, d2))
-
-test_pair("11111", "11111")
-test_pair("11111", "11112")
-test_pair("11111", "11113")
-test_pair("11111", "11114")
-test_pair("11111", "11115")
-test_pair("11111", "11116")
-test_pair("11111", "11122")
-test_pair("11111", "11123")
-test_pair("11111", "11124")
-test_pair("11111", "11125")
-test_pair("11111", "22222")
-test_pair("12345", "23456")
-test_pair("12345", "23456")
-test_pair("11111", "12223")

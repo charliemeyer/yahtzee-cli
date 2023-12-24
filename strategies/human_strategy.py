@@ -1,6 +1,18 @@
+import sqlite3
+conn = sqlite3.connect('strategies/prob_db.db')
+cursor = conn.cursor()
+
 def get_keep_numbers(roll):
     good_keep_numbers = False
     keep_numbers = []
+    key = "".join([str(d) for d in roll])
+    print("KEY is ", key)
+    cursor.execute("SELECT roll, strat, ev FROM level1 where roll = (?)", [key])
+    strat_ev_pairs = cursor.fetchall()
+    print(len(strat_ev_pairs))
+    strat_ev_pairs.sort(key=lambda x: x[2], reverse=True)
+    for pair in strat_ev_pairs:
+        print(pair[0], pair[1], pair[2])
     while not good_keep_numbers:
         keep_choice = input("what numbers do you want to keep? (\"all\" to keep all, \"none\" to keep none)\n")
         if keep_choice == "all":
