@@ -62,23 +62,14 @@ def full_house(roll):
     return 0
 
 def large_straight(roll):
-    sorted_roll = sorted(roll)
-    for i in range(1, len(sorted_roll)):
-        if sorted_roll[i] != sorted_roll[i-1] + 1:
-            return 0
-    return 40
+    sorted_roll = "".join([str(s) for s in sorted(roll)])
+    return 40 if sorted_roll == "12345" else 0
 
 def small_straight(roll):
-    sorted_roll = sorted(roll)
-
-    for i in range(1, len(sorted_roll)):
-        if sorted_roll[i] != sorted_roll[i-1] + 1:
-            sorted_roll.pop(i)
-            break
-    for i in range(1, len(sorted_roll)):
-        if sorted_roll[i] != sorted_roll[i-1] + 1:
-            return 0
-    return 30
+    sorted_roll = "".join([str(s) for s in sorted(roll)])
+    if "1234" in sorted_roll or "2345" in sorted_roll or "3456" in sorted_roll:
+        return 30
+    return 0
 
 def yahtzee(roll):
     for d in roll:
