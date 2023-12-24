@@ -7,6 +7,9 @@ import strategies.random_ai as random_strategy
 import strategies.all_yahtzee as all_yahtzee_strategy
 import strategies.random_greedy_ai as random_greedy_strategy
 
+import matplotlib.pyplot as plt
+import numpy as np
+
 quiet_mode = False
 
 def log(*messages):
@@ -14,7 +17,7 @@ def log(*messages):
         return
     print(messages)
 
-def roll(old_roll, keep_numbers):
+def roll(keep_numbers):
     new_roll = []
     for i in range(5):
         if i < len(keep_numbers):
@@ -41,7 +44,7 @@ def run_game(scoreboard, available_categories, strategy):
     keep_numbers = []
     while len(available_categories) > 0:
         for _ in range(3):
-            user_roll = roll(user_roll, keep_numbers)
+            user_roll = roll(keep_numbers)
             log(" ".join([str(r) for r in user_roll]))
             keep_numbers = strategy.get_keep_numbers(user_roll)
             if (len(keep_numbers) == 5):
@@ -88,17 +91,38 @@ def main():
         quiet_mode = True
 
     sum_scores = 0
+    scores = []
     for i in range(num_runs):
         available_categories = list(strategies.keys())
         scoreboard = {"num_yahtzees": 0}
         score = run_game(scoreboard, available_categories, strategy)
         sum_scores += score
-        print("score", score)
+        scores.append(score)
+        log("score", score)
         if not quiet_mode:
             input("press any key to continue")
         log("THE GAME IS OVER!")
         show_scoreboard(scoreboard)
         log("final score:", score)
+    # Calculate the median
+    median_score = np.median(scores)
+
+    # Create the histogram
+    plt.hist(scores, bins=100, edgecolor='black', alpha=0.7)
+
+    # Add a red vertical line at the median
+    plt.axvline(median_score, color='red', linestyle='dashed', linewidth=2)
+
+    # Annotate the median value
+    plt.text(median_score, plt.ylim()[1]*0.9, f'Median: {median_score}', color = 'red')
+
+    # Adding titles and labels
+    plt.title('Histogram of Scores with Median')
+    plt.xlabel('Scores')
+    plt.ylabel('Frequency')
+
+    # Display the plot
+    plt.show()
     print("average score", sum_scores / num_runs)
 
 main()
