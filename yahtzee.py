@@ -1,9 +1,18 @@
 import random
-from scores import strategies, final_score
+from strategies.scores import strategies, final_score, get_score_for_category
 import sys
 
-import human_strategy
+import strategies.human_strategy as human_strategy
+import strategies.random_ai as random_strategy
+import strategies.all_yahtzee as all_yahtzee_strategy
+import strategies.random_greedy_ai as random_greedy_strategy
 
+quiet_mode = False
+
+def log(*messages):
+    if quiet_mode:
+        return
+    print(messages)
 
 def roll(old_roll, keep_numbers):
     new_roll = []
@@ -22,53 +31,74 @@ def show_scoreboard(scoreboard):
 
     for category in categories:
         if category in scoreboard:
-            print(category, scoreboard[category])
+            log(category, scoreboard[category])
         else:
-            print(category, 0)
+            log(category, 0)
+    log("num yahtzees", scoreboard["num_yahtzees"])
 
-def get_score_for_category(category, roll, scoreboard):
-    return strategies[category]["f"](roll, scoreboard["bonus_yahtzees"])
-
-def interactive_mode(scoreboard, available_categories, strategy):
+def run_game(scoreboard, available_categories, strategy):
     user_roll = []
     keep_numbers = []
     while len(available_categories) > 0:
         for _ in range(3):
             user_roll = roll(user_roll, keep_numbers)
-            print(" ".join([str(r) for r in user_roll]))
+            log(" ".join([str(r) for r in user_roll]))
             keep_numbers = strategy.get_keep_numbers(user_roll)
             if (len(keep_numbers) == 5):
                 break
-        print("final roll:", " ".join([str(r) for r in user_roll]))
+        log("final roll:", " ".join([str(r) for r in user_roll]))
         for category in available_categories:
             (score, is_yahtzee) = get_score_for_category(category, user_roll, scoreboard)
             if is_yahtzee:
-                print(category, score, "YAHTZEE!")
+                log(category, score, "YAHTZEE!")
             else:
-                print(category, score)
-        chosen_category = strategy.get_category_choice(available_categories, scoreboard)
+                log(category, score)
+        chosen_category = strategy.get_category_choice(available_categories, user_roll, scoreboard)
         (score, is_yahtzee) = get_score_for_category(chosen_category, user_roll, scoreboard)
         scoreboard[chosen_category] = score
         if is_yahtzee:
-            scoreboard["bonus_yahtzees"] += 1
+            scoreboard["num_yahtzees"] += 1
         # remove the category from the list of available categories
         available_categories.remove(chosen_category)
         user_roll = []
         keep_numbers = []
         # clear screen
-        print("\033c")
-        print("current scoreboard: ")
+        log("\033c")
+        log("current scoreboard: ")
         show_scoreboard(scoreboard)
-        input("press any key to continue")
-        print("\033c")
+        log("\033c")
+    return final_score(scoreboard)
 
 def main():
-    available_categories = list(strategies.keys())
-    scoreboard = {"bonus_yahtzees": 0}
-    interactive_mode(scoreboard, available_categories, human_strategy)
+    global quiet_mode
 
-    print("THE GAME IS OVER!")
-    show_scoreboard(scoreboard)
-    print("final score:", final_score(scoreboard))
+    strategy = None
+    strategy_choice = input("What strategy?" )
+    if strategy_choice == "human":
+        strategy = human_strategy
+    if strategy_choice == "random":
+        strategy = random_strategy
+    if strategy_choice == "all_yahtzee":
+        strategy = all_yahtzee_strategy
+    if strategy_choice == "random_greedy":
+        strategy = random_greedy_strategy
+    
+    num_runs = int(input("how many runs"))
+    if num_runs > 1:
+        quiet_mode = True
+
+    sum_scores = 0
+    for i in range(num_runs):
+        available_categories = list(strategies.keys())
+        scoreboard = {"num_yahtzees": 0}
+        score = run_game(scoreboard, available_categories, strategy)
+        sum_scores += score
+        print("score", score)
+        if not quiet_mode:
+            input("press any key to continue")
+        log("THE GAME IS OVER!")
+        show_scoreboard(scoreboard)
+        log("final score:", score)
+    print("average score", sum_scores / num_runs)
 
 main()

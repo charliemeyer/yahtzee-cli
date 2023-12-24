@@ -181,6 +181,9 @@ def final_score(scoreboard):
     score += scoreboard["large_straight"]
     score += scoreboard["yahtzee"]
     score += scoreboard["chance"]
-    score += 100 * scoreboard["bonus_yahtzees"]
+    if scoreboard["num_yahtzees"] > 1:
+        score += 100 * (scoreboard["num_yahtzees"] - 1)
     return score
 
+def get_score_for_category(category, roll, scoreboard):
+    return strategies[category]["f"](roll, scoreboard["num_yahtzees"])

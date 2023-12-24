@@ -17,7 +17,7 @@ def get_keep_numbers(roll):
     return keep_numbers
 
 
-def get_category_choice(available_categories, _scoreboard):
+def get_category_choice(available_categories, _roll, _scoreboard):
     chosen_category = input("what category do you want to use?\n")
     while chosen_category not in available_categories:
         print("invalid category")
