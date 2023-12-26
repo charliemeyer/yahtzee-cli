@@ -66,8 +66,8 @@ def large_straight(roll):
     return 40 if sorted_roll == "12345" else 0
 
 def small_straight(roll):
-    sorted_roll = "".join([str(s) for s in sorted(roll)])
-    if "1234" in sorted_roll or "2345" in sorted_roll or "3456" in sorted_roll:
+    distinct = "".join([str(s) for s in sorted(list(set(roll)))])
+    if "1234" in distinct or "2345" in distinct or "3456" in distinct:
         return 30
     return 0
 

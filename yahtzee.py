@@ -6,6 +6,7 @@ import strategies.human_strategy as human_strategy
 import strategies.random_ai as random_strategy
 import strategies.all_yahtzee as all_yahtzee_strategy
 import strategies.random_greedy_ai as random_greedy_strategy
+import strategies.greedy_with_prob_strategy as greedy_with_prob_strategy
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -46,7 +47,7 @@ def run_game(scoreboard, available_categories, strategy):
         for _ in range(3):
             user_roll = roll(keep_numbers)
             log(" ".join([str(r) for r in user_roll]))
-            keep_numbers = strategy.get_keep_numbers(user_roll)
+            keep_numbers = strategy.get_keep_numbers(user_roll, available_categories)
             if (len(keep_numbers) == 5):
                 break
         log("final roll:", " ".join([str(r) for r in user_roll]))
@@ -76,7 +77,7 @@ def main():
     global quiet_mode
 
     strategy = None
-    strategy_choice = input("What strategy?" )
+    strategy_choice = sys.argv[1]
     if strategy_choice == "human":
         strategy = human_strategy
     if strategy_choice == "random":
@@ -85,8 +86,10 @@ def main():
         strategy = all_yahtzee_strategy
     if strategy_choice == "random_greedy":
         strategy = random_greedy_strategy
+    if strategy_choice == "greedy_with_prob":
+        strategy = greedy_with_prob_strategy
     
-    num_runs = int(input("how many runs"))
+    num_runs = int(sys.argv[2])
     if num_runs > 1:
         quiet_mode = True
 
