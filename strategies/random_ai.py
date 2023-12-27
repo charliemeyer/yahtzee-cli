@@ -1,6 +1,6 @@
 import random
 
-def get_keep_numbers(roll):
+def get_keep_numbers(roll, _a, _b):
     return roll
 
 

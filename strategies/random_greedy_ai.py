@@ -1,6 +1,6 @@
 from strategies.scores import strategies, get_score_for_category
 
-def get_keep_numbers(roll):
+def get_keep_numbers(roll, _a, _b):
     return roll
 
 def get_category_choice(available_categories, roll, scoreboard):

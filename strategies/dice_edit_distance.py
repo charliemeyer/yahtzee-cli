@@ -31,4 +31,3 @@ for i in range(1, 7):
             for iiii in range(1, 7):
                 for iiiii in range(1, 7):
                     s += dice_edit_distance("", str(i) + str(ii) + str(iii) + str(iiii) + str(iiiii))
-print(s)

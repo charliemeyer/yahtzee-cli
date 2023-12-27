@@ -3,28 +3,25 @@ import sqlite3
 conn = sqlite3.connect('strategies/prob_db.db')
 cursor = conn.cursor()
 
-def get_keep_numbers(roll, available_categories):
+def get_keep_numbers(roll, available_categories, rolls_left):
     good_keep_numbers = False
     keep_numbers = []
     key = "".join([str(d) for d in roll])
-    query = '''
-    SELECT r.roll, rt.keep, rs.strat, SUM(rt.prob * rs.ev_frac) as ev_frac, SUM(rt.prob * rs.ev) as ev_score
-    FROM rolls r
-    JOIN roll_transitions rt ON r.roll = rt.roll1
-    JOIN level0 rs ON rt.roll2 = rs.roll
-    WHERE r.roll = (?) and rs.strat = (?)
-    GROUP BY rs.strat, rt.keep
-    ORDER BY ev_frac DESC, ev_score DESC
-    LIMIT 1
+    query = f'''
+    SELECT roll, keep, SUM(l1.ev_frac / d.ev_frac) as ev, AVG(ev_score) as ev_score
+    FROM level1 as l1
+    JOIN difficulty d on d.strat = l1.strat
+    WHERE l1.roll = (?) and l1.strat in {"(" + ",".join([f'"{cat}"' for cat in available_categories]) + ")"}
+    GROUP BY keep
+    ORDER BY ev, ev_score DESC
     '''
 
     possibilities = []
-    for category in available_categories:
-        cursor.execute(query, [key, category])
-        results = cursor.fetchall()
-        for row in results:
-            possibilities.append((row[1], row[2], round(row[3], 2), round(row[4], 2)))
-    possibilities.sort(key=lambda x: (x[2], x[3]), reverse=True)
+    cursor.execute(query, [key, ])
+    results = cursor.fetchall()
+    for row in results:
+        possibilities.append((row[1], row[2], round(row[3], 2)))
+    possibilities.sort(key=lambda x: (x[1], x[2]), reverse=True)
     for p in possibilities:
         print(p)
     while not good_keep_numbers:

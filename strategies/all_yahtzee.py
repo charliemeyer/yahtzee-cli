@@ -1,7 +1,7 @@
 import random
 from strategies.scores import strategies, get_score_for_category
 
-def get_keep_numbers(roll):
+def get_keep_numbers(roll, _a, _b):
     freqs = {}
     for d in roll:
         if d in freqs:
@@ -18,11 +18,10 @@ def get_keep_numbers(roll):
 
 
 def get_category_choice(available_categories, roll, scoreboard):
-    best_category = available_categories[0]
-    best_score = get_score_for_category(available_categories[0], roll, scoreboard)
+    fracs_and_scores = []
     for category in available_categories:
-        score = get_score_for_category(category, roll, scoreboard)
-        if score > best_score:
-            best_score = score
-            best_category = category
-    return best_category
+        (score, _)  = get_score_for_category(category, roll, scoreboard)
+        max = strategies[category]["max"]
+        fracs_and_scores.append((score/max, score, category))
+    fracs_and_scores.sort(reverse=True)
+    return fracs_and_scores[0][2]

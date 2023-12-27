@@ -63,7 +63,7 @@ def full_house(roll):
 
 def large_straight(roll):
     sorted_roll = "".join([str(s) for s in sorted(roll)])
-    return 40 if sorted_roll == "12345" else 0
+    return 40 if sorted_roll == "12345" or sorted_roll == "23456" else 0
 
 def small_straight(roll):
     distinct = "".join([str(s) for s in sorted(list(set(roll)))])
@@ -86,7 +86,8 @@ def wrapped_strat(strat):
         original_score = strat_f(roll)
         is_yahtzee = yahtzee(roll) == 50
         if is_yahtzee and num_yahtzees > 0:
-            return (strategies[strat]["max"], is_yahtzee)
+            # fudging, dont want to code the real rules
+            return (20, is_yahtzee)
         return (original_score, is_yahtzee)
     return wrapped
 

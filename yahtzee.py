@@ -6,7 +6,10 @@ import strategies.human_strategy as human_strategy
 import strategies.random_ai as random_strategy
 import strategies.all_yahtzee as all_yahtzee_strategy
 import strategies.random_greedy_ai as random_greedy_strategy
-import strategies.greedy_with_prob_strategy as greedy_with_prob_strategy
+import strategies.greedy_level_1_prob_strategy as greedy_level_1_prob_strategy
+import strategies.greedy_level_2_prob_strategy as greedy_level_2_prob_strategy
+import strategies.level1_plus_chance_heuristic as level_1_plus_chance_heuristic_strategy
+import strategies.level1_with_difficulty as level_1_with_difficulty_strategy
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -22,13 +25,10 @@ def roll(keep_numbers):
     new_roll = []
     for i in range(5):
         if i < len(keep_numbers):
-            # TODO: check if the keep number is actually legit
             new_roll.append(keep_numbers[i])
         else:
             new_roll.append(random.randint(1,6))
     return sorted(new_roll)
-
-
 
 def show_scoreboard(scoreboard):
     categories = list(strategies.keys())
@@ -44,12 +44,13 @@ def run_game(scoreboard, available_categories, strategy):
     user_roll = []
     keep_numbers = []
     while len(available_categories) > 0:
-        for _ in range(3):
-            user_roll = roll(keep_numbers)
+        user_roll = roll(keep_numbers)
+        for i in range(2):
             log(" ".join([str(r) for r in user_roll]))
-            keep_numbers = strategy.get_keep_numbers(user_roll, available_categories)
+            keep_numbers = strategy.get_keep_numbers(user_roll, available_categories, i)
             if (len(keep_numbers) == 5):
                 break
+            user_roll = roll(keep_numbers)
         log("final roll:", " ".join([str(r) for r in user_roll]))
         for category in available_categories:
             (score, is_yahtzee) = get_score_for_category(category, user_roll, scoreboard)
@@ -67,10 +68,10 @@ def run_game(scoreboard, available_categories, strategy):
         user_roll = []
         keep_numbers = []
         # clear screen
-        log("\033c")
+        # log("\033c")
         log("current scoreboard: ")
         show_scoreboard(scoreboard)
-        log("\033c")
+        # log("\033c")
     return final_score(scoreboard)
 
 def main():
@@ -86,8 +87,14 @@ def main():
         strategy = all_yahtzee_strategy
     if strategy_choice == "random_greedy":
         strategy = random_greedy_strategy
-    if strategy_choice == "greedy_with_prob":
-        strategy = greedy_with_prob_strategy
+    if strategy_choice == "greedy_prob2":
+        strategy = greedy_level_2_prob_strategy
+    if strategy_choice == "greedy_prob1":
+        strategy = greedy_level_1_prob_strategy
+    if strategy_choice == "level1_plus_chance":
+        strategy = level_1_plus_chance_heuristic_strategy
+    if strategy_choice == "level1_with_difficulty":
+        strategy = level_1_with_difficulty_strategy
     
     num_runs = int(sys.argv[2])
     if num_runs > 1:

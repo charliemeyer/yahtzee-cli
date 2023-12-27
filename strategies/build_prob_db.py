@@ -67,6 +67,8 @@ data_to_write = []
 for roll in all_rolls_set:
     for strat in strategies:
         (score, _) = get_score_for_category(strat, [int(d) for d in roll], {"num_yahtzees": 0})
+        if strat in ["ones", "twos", "threes", "fours", "fives", "sixes"]:
+            score *= (1 + 35/63)
         data_to_write.append((roll, strat, score / strategies[strat]["max"], score))
 
 for row in data_to_write:
@@ -106,6 +108,66 @@ for strat in strategies:
         if count % 100 == 0:
             print(count, "done")
 
+print("level 1 transitions table done")
+
+conn.commit()
+
+
+#
+# level 2 transitions table
+#
+
+cursor.execute('''CREATE TABLE IF NOT EXISTS level2 (roll TEXT, keep TEXT, strat TEXT, ev_frac FLOAT, ev_score FLOAT)''')
+
+query = '''
+SELECT r.roll, rt.keep, rs.strat, SUM(rt.prob * rs.ev_frac) as ev_frac, SUM(rt.prob * rs.ev_score) as ev_score
+FROM rolls r
+JOIN roll_transitions rt ON r.roll = rt.roll1
+JOIN level1 rs ON rt.roll2 = rs.roll
+WHERE r.roll = (?) and rs.strat = (?)
+GROUP BY rs.strat, rt.keep
+ORDER BY ev_frac DESC, ev_score DESC
+LIMIT 1
+'''
+
+print("queries to do total: ", len(all_rolls_set) * len(strategies))
+
+count = 0
+for strat in strategies:
+    for roll in all_rolls_set:
+        cursor.execute(query, [roll, strat])
+        results = cursor.fetchall()
+        for row in results:
+            cursor.execute("INSERT INTO level2 (roll, keep, strat, ev_frac, ev_score) VALUES (?, ?, ?, ?, ?)", [roll, row[1], strat, row[3], row[4]])
+        count += 1
+        if count % 100 == 0:
+            print(count, "done")
+
+print("level 2 transitions table done")
+
+conn.commit()
+
+#
+# difficulty
+#
+
+cursor.execute('''CREATE TABLE IF NOT EXISTS difficulty (strat TEXT, ev_frac FLOAT)''')
+
+query = '''
+
+    SELECT strat, AVG(ev_frac) as ev_frac
+    FROM level1
+    GROUP BY strat
+    ORDER BY ev_frac DESC
+'''
+
+cursor.execute(query)
+results = cursor.fetchall()
+for row in results:
+    print(row)
+    cursor.execute("INSERT INTO difficulty (strat, ev_frac) VALUES (?, ?)", row)
+
+print("difficulty table done")
 
 conn.commit()
 
