@@ -1,7 +1,6 @@
 import sqlite3
-from scores import strategies, get_score_for_category
+from yahtzee.scores import categories, get_score_for_category
 from dice_edit_distance import dice_edit_distance
-from scores import strategies
 import itertools
 
 def get_all_subsets(lst):
@@ -65,11 +64,11 @@ cursor.execute('''CREATE TABLE IF NOT EXISTS level0 (roll TEXT, strat TEXT, ev F
 data_to_write = []
 
 for roll in all_rolls_set:
-    for strat in strategies:
+    for strat in categories:
         (score, _) = get_score_for_category(strat, [int(d) for d in roll], {"num_yahtzees": 0})
         if strat in ["ones", "twos", "threes", "fours", "fives", "sixes"]:
             score *= (1 + 35/63)
-        data_to_write.append((roll, strat, score / strategies[strat]["max"], score))
+        data_to_write.append((roll, strat, score / categories[strat]["max"], score))
 
 for row in data_to_write:
     cursor.execute("INSERT INTO level0 (roll, strat, ev_frac, ev) VALUES (?, ?, ?, ?)", row)
@@ -95,10 +94,10 @@ ORDER BY ev_frac DESC, ev_score DESC
 LIMIT 1
 '''
 
-print("queries to do total: ", len(all_rolls_set) * len(strategies))
+print("queries to do total: ", len(all_rolls_set) * len(categories))
 
 count = 0
-for strat in strategies:
+for strat in categories:
     for roll in all_rolls_set:
         cursor.execute(query, [roll, strat])
         results = cursor.fetchall()
@@ -130,10 +129,10 @@ ORDER BY ev_frac DESC, ev_score DESC
 LIMIT 1
 '''
 
-print("queries to do total: ", len(all_rolls_set) * len(strategies))
+print("queries to do total: ", len(all_rolls_set) * len(categories))
 
 count = 0
-for strat in strategies:
+for strat in categories:
     for roll in all_rolls_set:
         cursor.execute(query, [roll, strat])
         results = cursor.fetchall()

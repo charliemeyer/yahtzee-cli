@@ -80,10 +80,10 @@ def yahtzee(roll):
 def chance(roll):
     return sum(roll)
 
-def wrapped_strat(strat):
+def wrapped_category_score(strat):
     def wrapped(roll, num_yahtzees):
-        strat_f = strategies[strat]["original_f"]
-        original_score = strat_f(roll)
+        cat_f = categories[strat]["original_f"]
+        original_score = cat_f(roll)
         is_yahtzee = yahtzee(roll) == 50
         if is_yahtzee and num_yahtzees > 0:
             # fudging, dont want to code the real rules
@@ -92,84 +92,81 @@ def wrapped_strat(strat):
     return wrapped
 
 
-strategies = {
+categories = {
     "ones": {
-        "f": wrapped_strat("ones"),
+        "f": wrapped_category_score("ones"),
         "original_f": ones,
         "max": 5
     },
     "twos": {
-        "f": wrapped_strat("twos"),
+        "f": wrapped_category_score("twos"),
         "original_f": twos,
         "max": 10
     },
     "threes": {
-        "f": wrapped_strat("threes"),
+        "f": wrapped_category_score("threes"),
         "original_f": threes,
         "max": 15
     },
     "fours": {
-        "f": wrapped_strat("fours"),
+        "f": wrapped_category_score("fours"),
         "original_f": fours,
         "max": 20,
     },
     "fives": {
-        "f": wrapped_strat("fives"),
+        "f": wrapped_category_score("fives"),
         "original_f": fives,
         "max": 25,
     },
     "sixes": {
-        "f": wrapped_strat("sixes"),
+        "f": wrapped_category_score("sixes"),
         "original_f": sixes,
         "max": 30,
     },
     "three_of_kind": {
-        "f": wrapped_strat("three_of_kind"),
+        "f": wrapped_category_score("three_of_kind"),
         "original_f": three_of_kind,
         "max": 30,
     },
     "four_of_kind": {
-        "f": wrapped_strat("four_of_kind"),
+        "f": wrapped_category_score("four_of_kind"),
         "original_f": four_of_kind,
         "max": 30
     },
     "full_house": {
-        "f": wrapped_strat("full_house"),
+        "f": wrapped_category_score("full_house"),
         "original_f": full_house,
         "max": 25
     },
     "small_straight": {
-        "f": wrapped_strat("small_straight"),
+        "f": wrapped_category_score("small_straight"),
         "original_f": small_straight,
         "max": 30
     },
     "large_straight": {
-        "f": wrapped_strat("large_straight"),
+        "f": wrapped_category_score("large_straight"),
         "original_f": large_straight,
         "max": 40,
     },
     "yahtzee": {
-        "f": wrapped_strat("yahtzee"),
+        "f": wrapped_category_score("yahtzee"),
         "original_f": yahtzee,
         "max": 50
     },
     "chance": {
-        "f": wrapped_strat("chance"), 
+        "f": wrapped_category_score("chance"), 
         "original_f": chance,
         "max": 30
     }
 }
 
-
-
-
-def score_options(roll, available_categories):
+def category_options(roll, available_categories):
     category_scores = {}
     for c in available_categories:
-        category_scores[c] = strategies[c](roll)
+        category_scores[c] = categories[c](roll)
     return category_scores
 
-def final_score(scoreboard):
+def get_final_score(scoreboard):
     score = 0
     upper_score = scoreboard["ones"] + scoreboard["twos"] + scoreboard["threes"] + scoreboard["fours"] + scoreboard["fives"] + scoreboard["sixes"]
     if upper_score >= 63:
@@ -187,4 +184,4 @@ def final_score(scoreboard):
     return score
 
 def get_score_for_category(category, roll, scoreboard):
-    return strategies[category]["f"](roll, scoreboard["num_yahtzees"])
+    return categories[category]["f"](roll, scoreboard["num_yahtzees"])
