@@ -25,7 +25,7 @@ def show_plot(scores_list):
 
     # Display the plot
     plt.show()
-    print("average score", sum(scores_list) / len(scores_list))
+
 
 def main(stdscr):
     curses.curs_set(0)  # Hide the cursor
@@ -55,15 +55,22 @@ def main(stdscr):
         quiet_mode = True
 
     scores_list = []
-    for _ in range(args.runs):
+    for i in range(args.runs):
         strategy = all_strategies[args.strategy]()
         game = Yahtzee(strategy, args.interactive, stdscr)
         score = game.run()
         scores_list.append(score)
         if not quiet_mode:
-            print("Final score:", score)
+            stdscr.addstr(0, i, f"Final score: {score}")
+    lines_shown = 0 if quiet_mode else args.runs
+    stdscr.addstr(lines_shown, 0, f"Average score {sum(scores_list) / len(scores_list)}")
     if args.show_plot:
+        stdscr.addstr(lines_shown + 2, 0, "Press any key to show plot and exit")
+        stdscr.getch()
         show_plot(scores_list)
+    else:
+        stdscr.getch()
+        stdscr.addstr(lines_shown + 2, 0, "Press any key to exit")
 
 if __name__ == "__main__":
     curses.wrapper(main)

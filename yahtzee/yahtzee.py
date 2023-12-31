@@ -15,19 +15,14 @@ def cat_name_to_display_name(cat_name):
     return cat_name.replace("_", " ").title()
 
 class Yahtzee():
-    quiet_mode = False
-
     def __init__(self, strategy, interactive, stdscr):
         self.scoreboard = {"num_yahtzees": 0}
         self.available_categories = list(categories.keys())
         self.strategy = strategy
-        self.quiet = not interactive
         self.interactive = interactive
         self.stdscr = stdscr
 
     def log(self, *messages):
-        if self.quiet:
-            return
         self.stdscr.addstr(" ".join([str(m) for m in messages]) + "\n")
 
     def show_scoreboard(self):
@@ -66,9 +61,9 @@ class Yahtzee():
                 if (len(keep_numbers) == 5):
                     break
                 roll = get_roll(keep_numbers)
-            self.log("Final roll:", " ".join([str(r) for r in roll]))
             chosen_category = ""
             if self.interactive:
+                self.log("Final roll:", " ".join([str(r) for r in roll]))
                 category_choices = self.strategy.get_ranked_category_choices(self.available_categories, roll, self.scoreboard)
                 options_to_show = []
                 for category in category_choices:
@@ -84,13 +79,15 @@ class Yahtzee():
             self.available_categories.remove(chosen_category)
             roll = []
             keep_numbers = []
-            self.show_scoreboard()
-            self.stdscr.getch()
+            if self.interactive:
+                self.show_scoreboard()
+                self.stdscr.getch()
 
         final_score = get_final_score(self.scoreboard)
-        self.stdscr.clear()
-        self.log("Final score:", final_score)
-        self.stdscr.getch()
+        if self.interactive:
+            self.stdscr.clear()
+            self.log("Final score:", final_score)
+            self.stdscr.getch()
 
         return final_score
 
