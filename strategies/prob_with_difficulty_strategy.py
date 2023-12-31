@@ -26,7 +26,8 @@ class ProbWithDifficulty(Strategy):
         for row in results:
             possibilities.append((row[1], row[2], round(row[3], 2)))
         possibilities.sort(key=lambda x: (x[1], x[2]), reverse=True)
-        return [int(d) for d in possibilities[0][0]]
+        return [([int(d) for d in p[0]], round(p[1], 2)) for p in possibilities][0:5]
+
     
     def get_keep_number_choice(self, roll, available_categories, roll_num):
         return self.get_ranked_keep_numbers(roll, available_categories, roll_num)[0]
@@ -41,7 +42,7 @@ class ProbWithDifficulty(Strategy):
         # if you have a bad roll, take the least important one
         if (fracs_and_scores[0][0] < .5):
             fracs_and_scores.sort(key=lambda x: 999 if x[1] <= 0 else x[3])
-        return fracs_and_scores[0][2]
+        return [fs[2] for fs in fracs_and_scores][0:5]
 
     def get_category_choice(self, available_categories, roll, scoreboard):
         return self.get_ranked_category_choices(available_categories, roll, scoreboard)[0]

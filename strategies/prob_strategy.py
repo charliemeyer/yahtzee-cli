@@ -25,10 +25,10 @@ class ProbStrategy(Strategy):
             for row in results:
                 possibilities.append((row[1], row[2], round(row[3], 2), round(row[4], 2)))
         possibilities.sort(key=lambda x: (x[2], x[3]), reverse=True)
-        return [int(d) for d in possibilities[0][0]]
+        return [([int(d) for d in p[0]], p[1]) for p in possibilities][0:5]
 
     def get_keep_number_choice(self, roll, available_categories, _):
-        return self.get_ranked_keep_numbers(roll, available_categories, _)[0]
+        return self.get_ranked_keep_numbers(roll, available_categories, _)[0][0]
 
     def get_ranked_category_choices(self, available_categories, roll, scoreboard):
         fracs_and_scores = []
@@ -37,7 +37,7 @@ class ProbStrategy(Strategy):
             max = categories[category]["max"]
             fracs_and_scores.append((score/max, score, category))
         fracs_and_scores.sort(reverse=True)
-        return fracs_and_scores[0][2]
+        return [fs[2] for fs in fracs_and_scores][0:5]
     
     def get_category_choice(self, available_categories, roll, scoreboard):
         return self.get_ranked_category_choices(available_categories, roll, scoreboard)[0]

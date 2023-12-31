@@ -3,6 +3,7 @@ from strategies.strategies import all_strategies
 from yahtzee.yahtzee import Yahtzee
 import matplotlib.pyplot as plt
 import numpy as np
+import curses
 
 def show_plot(scores_list):
     # Calculate the median
@@ -26,7 +27,10 @@ def show_plot(scores_list):
     plt.show()
     print("average score", sum(scores_list) / len(scores_list))
 
-def main():
+def main(stdscr):
+    curses.curs_set(0)  # Hide the cursor
+    curses.init_pair(1, curses.COLOR_BLACK, curses.COLOR_WHITE)  # Highlighted: Black text on white bg
+    curses.init_pair(2, curses.COLOR_WHITE, curses.COLOR_BLACK)  # Non-highlighted: White text
     strategy = None
 
     parser = argparse.ArgumentParser(
@@ -34,30 +38,32 @@ def main():
                     description='What the program does',
                     epilog='Text at the bottom of help')
 
-    parser.add_argument('-r', '--runs', type=int, default=1)      # option that takes a value
+    parser.add_argument('-r', '--runs', type=int, default=1)
     parser.add_argument('-q', '--quiet',
-                        action='store_true', default=False)  # on/off flag
+                        action='store_true', default=False)
     parser.add_argument('-i', '--interactive',
-                    action='store_true', default=False)  # on/off flag
+                    action='store_true', default=False)
     parser.add_argument('-p', '--show-plot', dest='show_plot',
-                    action='store_true', default=False)  # on/off flag
+                    action='store_true', default=False)
     parser.add_argument('-s', '--strategy',
-                        choices=all_strategies.keys())  # on/off flag
+                        choices=all_strategies.keys())
     
     args = parser.parse_args()
 
+    quiet_mode = args.quiet
     if args.runs > 1:
         quiet_mode = True
 
     scores_list = []
     for _ in range(args.runs):
         strategy = all_strategies[args.strategy]()
-        game = Yahtzee(strategy, args.interactive)
+        game = Yahtzee(strategy, args.interactive, stdscr)
         score = game.run()
         scores_list.append(score)
         if not quiet_mode:
-            input("press any key to continue")
+            print("Final score:", score)
     if args.show_plot:
         show_plot(scores_list)
 
-main()
+if __name__ == "__main__":
+    curses.wrapper(main)
