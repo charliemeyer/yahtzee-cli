@@ -80,9 +80,9 @@ def yahtzee(roll):
 def chance(roll):
     return sum(roll)
 
-def wrapped_category_score(strat):
+def wrapped_category_score(category):
     def wrapped(roll, num_yahtzees):
-        cat_f = categories[strat]["original_f"]
+        cat_f = categories[category]["original_f"]
         original_score = cat_f(roll)
         is_yahtzee = yahtzee(roll) == 50
         if is_yahtzee and num_yahtzees > 0:

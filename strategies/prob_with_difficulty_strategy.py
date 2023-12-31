@@ -5,7 +5,7 @@ from strategies.Strategy import Strategy
 
 class ProbWithDifficulty(Strategy):
     def __init__(self):
-        conn = sqlite3.connect('prob_db/prob_db.db')
+        conn = sqlite3.connect('prob_db/probs.db')
         self.cursor = conn.cursor()
 
     def get_ranked_keep_numbers(self, roll, available_categories, _roll_num):
@@ -14,8 +14,8 @@ class ProbWithDifficulty(Strategy):
         query = f'''
         SELECT roll, keep, SUM(l1.ev_frac / d.ev_frac) as ev, AVG(ev_score) as ev_score
         FROM {table} as l1
-        JOIN difficulty d on d.strat = l1.strat
-        WHERE l1.roll = (?) and l1.strat in {"(" + ",".join([f'"{cat}"' for cat in available_categories]) + ")"}
+        JOIN difficulty d on d.category = l1.category
+        WHERE l1.roll = (?) and l1.category in {"(" + ",".join([f'"{cat}"' for cat in available_categories]) + ")"}
         GROUP BY keep
         ORDER BY ev, ev_score DESC
         '''
@@ -27,10 +27,9 @@ class ProbWithDifficulty(Strategy):
             possibilities.append((row[1], row[2], round(row[3], 2)))
         possibilities.sort(key=lambda x: (x[1], x[2]), reverse=True)
         return [([int(d) for d in p[0]], round(p[1], 2)) for p in possibilities][0:5]
-
     
     def get_keep_number_choice(self, roll, available_categories, roll_num):
-        return self.get_ranked_keep_numbers(roll, available_categories, roll_num)[0]
+        return self.get_ranked_keep_numbers(roll, available_categories, roll_num)[0][0]
 
     def get_ranked_category_choices(self, available_categories, roll, scoreboard):
         fracs_and_scores = []

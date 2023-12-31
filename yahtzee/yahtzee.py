@@ -116,7 +116,7 @@ class Yahtzee():
             elif key == curses.KEY_DOWN and current_row < len(keep_number_choices) - 1:
                 current_row += 1
             elif key == curses.KEY_ENTER or key in [10, 13]:
-                break  # Exit the program
+                break
 
             self.stdscr.refresh()
         self.stdscr.clear()
@@ -147,7 +147,7 @@ class Yahtzee():
             elif key == curses.KEY_DOWN and current_row < len(available_categories) - 1:
                 current_row += 1
             elif key == curses.KEY_ENTER or key in [10, 13]:
-                break  # Exit the program
+                break
 
             self.stdscr.refresh()
         self.stdscr.clear()

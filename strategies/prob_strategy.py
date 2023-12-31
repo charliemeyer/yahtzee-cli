@@ -5,15 +5,15 @@ from strategies.Strategy import Strategy
 
 class ProbStrategy(Strategy):
     def __init__(self):
-        conn = sqlite3.connect('prob_db/prob_db.db')
+        conn = sqlite3.connect('prob_db/probs.db')
         self.cursor = conn.cursor()
 
     def get_ranked_keep_numbers(self, roll, available_categories, _):
         key = "".join([str(d) for d in roll])
         query = f'''
-        SELECT roll, keep, l1.strat, l1.ev_frac as ev, ev_score
+        SELECT roll, keep, l1.category, l1.ev_frac as ev, ev_score
         FROM level1 as l1
-        WHERE l1.roll = (?) and l1.strat = (?)
+        WHERE l1.roll = (?) and l1.category = (?)
         ORDER BY ev, ev_score DESC
         LIMIT 1
         '''
